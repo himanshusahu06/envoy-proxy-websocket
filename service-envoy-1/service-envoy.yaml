@@ -1,0 +1,79 @@
+static_resources:
+  listeners:
+  - address:
+      socket_address:
+        address: 0.0.0.0
+        port_value: 80
+    filter_chains:
+    - filters:
+      - name: envoy.http_connection_manager
+        config:
+          codec_type: auto
+          stat_prefix: ingress_http
+          route_config:
+            name: local_route
+            virtual_hosts:
+            - name: service
+              domains:
+              - "*"
+              routes:
+              - match:
+                  prefix: "/file1"
+                route:
+                  use_websocket: true
+                  cluster: local_service
+              - match:
+                  prefix: "/httpservice"
+                route:
+                  cluster: service4
+              - match:
+                  prefix: "/service1"
+                route:
+                  use_websocket: true
+                  cluster: local_service
+              - match:
+                  prefix: "/service3"
+                route:
+                  use_websocket: true
+                  cluster: service3
+              - match:
+                  prefix: "/service4"
+                route:
+                  use_websocket: true
+                  cluster: service4
+          http_filters:
+          - name: envoy.router
+            config: {}
+  clusters:
+  - name: local_service
+    connect_timeout: 0.25s
+    type: strict_dns
+    lb_policy: round_robin
+    hosts:
+    - socket_address:
+        address: 127.0.0.1
+        port_value: 8888
+  - name: service3
+    connect_timeout: 0.25s
+    type: strict_dns
+    lb_policy: round_robin
+    http2_protocol_options: {}
+    hosts:
+    - socket_address:
+        address: service3
+        port_value: 80
+  - name: service4
+    connect_timeout: 0.25s
+    type: strict_dns
+    lb_policy: round_robin
+    http2_protocol_options: {}
+    hosts:
+    - socket_address:
+        address: service4
+        port_value: 80
+admin:
+  access_log_path: "/dev/null"
+  address:
+    socket_address:
+      address: 0.0.0.0
+      port_value: 8081

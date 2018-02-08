@@ -1,0 +1,24 @@
+FROM envoyproxy/envoy-alpine:latest
+
+RUN apk add --no-cache curl
+RUN apk add --no-cache nano
+
+ENTRYPOINT ["/usr/bin/curl"]
+ENTRYPOINT ["/usr/bin/nano"]
+
+RUN apk update && apk add python3 bash && apk add python bash
+RUN python3 --version && pip3 --version
+RUN pip3 install -q websocket-client==0.44.0 tornado===4.5.3 Flask==0.11.1 requests==2.18.4
+
+RUN mkdir /code/
+RUN chmod -R 777 /code/
+
+ADD ./service-envoy-4/files/ /code/files/
+
+ADD ./container_services/flask_service.py /code/
+ADD ./container_services/tornado-server.py /code/
+ADD ./container_services/tornado-client.py /code/
+
+ADD ./service-envoy-1/startup_script.sh /usr/local/bin/startup_script.sh
+RUN chmod u+x /usr/local/bin/startup_script.sh
+ENTRYPOINT /usr/local/bin/startup_script.sh
