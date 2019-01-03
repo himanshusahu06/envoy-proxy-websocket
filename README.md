@@ -64,3 +64,5 @@ $ python tornado-client.py $(docker-machine ip default):80/service3
 ```shell
 $ python tornado-client.py $(docker-machine ip default):80/service4
 ```
+
+Must Read: https://blog.envoyproxy.io/introduction-to-modern-network-load-balancing-and-proxying-a57f6ff80236
